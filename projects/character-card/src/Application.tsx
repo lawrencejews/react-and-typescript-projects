@@ -5,20 +5,37 @@ import { CharacterType, fetchCharacter } from './characters';
 import { Loading } from './Loading';
 import { CharacterInformation } from './CharacterInformation';
 
+type WithCharacterProps = {
+  character: CharacterType;
+}
+
+function withCharacter<T>(Component: React.ComponentType<T>) {
+  return (props: Omit<T, keyof WithCharacterProps>) => {
+
+    const [character, setCharacter] = React.useState<characterType | null>(null);
+    const [loading, setLoading] = React.useState(true);
+    
+    React.useEffect(() => {
+      fetchCharacter().then((c) => {
+        setCharacter(c)
+        setLoading(false);
+      })
+    }, []);
+
+    if (loading) return <Loading />
+    return <Component {...(props as T)} character={character}/>
+  }
+};
+
+const CharacterInformationWithCharacter = withCharacter(CharacterInformation);
+
 const Application = () => {
-  const [character, setCharacter] = React.useState<characterType | null>(null);
-  const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    fetchCharacter().then((c) => {
-      setCharacter(c)
-    })
-  }, []);
-
-  return <main>
-    {loading && <Loading />}
-    {character && <CharacterInformation character={character} />} 
-  </main>;
+  return (
+    <main>
+      <CharacterInformationWithCharacter />
+    </main>;
+  );
 };
 
 export default Application;

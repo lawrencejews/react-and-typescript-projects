@@ -1,9 +1,20 @@
-type ButtonProps = {
+import * as React from 'react';
+
+type ButtonOwnProps< E extends React.ElementType = React.ElementType> = {
   children: string;
   primary?: boolean;
   secondary?: boolean;
   destructive?: boolean;
+  as: E;
 };
+
+type ButtonProps<E extends React.ElementType> = ButtonOwnProps<E> & 
+  Omit<React.ComponentProps<E>, keyof ButtonOwnProps>
+
+
+type PrimaryButtonProps = ButtonProps & { primary: boolean, secondary?: never; destructive?: never;};
+type SecondaryButtonProps = ButtonProps & { secondary: boolean, primary?: never; destructive?: never; };
+type DestructiveButtonProps = ButtonProps & { destructive: boolean, secondary?: never; primary?:never};
 
 const createClassNames = (classes: { [key: string]: boolean }): string => {
   let classNames = '';
@@ -18,7 +29,8 @@ const Button = ({
   primary = false,
   secondary = false,
   destructive = false
-}: ButtonProps) => {
+
+}: PrimaryButtonProps | SecondaryButtonProps | DestructiveButtonProps) => {
   const classNames = createClassNames({ primary, secondary, destructive });
 
   return <button className={classNames}>{children}</button>;
